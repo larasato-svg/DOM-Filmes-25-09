@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CINECLUBE 2000 - LOCADORA DIGITAL DE CDs & VCDs</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        y2k: {
+                            bg: '#0a0d14',
+                            panel: '#121824',
+                            border: '#1f293d',
+                            cyan: '#00f3ff',
+                            magenta: '#ff007f',
+                            green: '#00ff66',
+                            yellow: '#ffe600',
+                            silver: '#c0c0c0',
+                            disc: '#e2e8f0'
+                        }
+                    },
+                    fontFamily: {
+                        mono: ['Courier New', 'Courier', 'monospace'],
+                        sans: ['Inter', 'sans-serif']
+                    },
+                    boxShadow: {
+                        'neon-cyan': '0 0 15px rgba(0, 243, 255, 0.4)',
+                        'neon-magenta': '0 0 15px rgba(255, 0, 127, 0.4)',
+                        'jewel': '0 10px 25px -5px rgba(0, 0, 0, 0.7), inset 0 1px 2px rgba(255, 255, 255, 0.4), inset 0 -2px 4px rgba(0, 0, 0, 0.5)',
+                        'cd-hole': 'inset 0 0 8px rgba(0,0,0,0.8), 0 0 4px rgba(255,255,255,0.5)'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Matrix Grid Background */
+        .matrix-grid {
+            background-size: 30px 30px;
+            background-image: 
+                linear-gradient(to right, rgba(0, 243, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(0, 243, 255, 0.05) 1px, transparent 1px);
+        }
+
+        /* Scanline Overlay */
+        .scanlines {
+            background: linear-gradient(
+                to bottom,
+                rgba(255,255,255,0),
+                rgba(255,255,255,0) 50%,
+                rgba(0, 0, 0, 0.35) 50%,
+                rgba(0, 0, 0, 0.35)
+            );
+            background-size: 100% 4px;
+        }
+
+        /* CD Holographic Rainbow Gradient */
+        .cd-rainbow {
+            background: radial-gradient(
+                circle at 50% 50%,
+                #1a202c 0%,
+                #2d3748 18%,
+                #cbd5e0 22%,
+                #e2e8f0 25%,
+                #4a5568 28%,
+                #cbd5e0 30%
+            ), conic-gradient(
+                from 45deg,
+                rgba(255, 0, 0, 0.5),
+                rgba(255, 154, 0, 0.5),
+                rgba(208, 222, 33, 0.5),
+                rgba(79, 220, 74, 0.5),
+                rgba(63, 218, 216, 0.5),
+                rgba(47, 201, 226, 0.5),
+                rgba(28, 127, 238, 0.5),
+                rgba(95, 21, 242, 0.5),
+                rgba(186, 12, 248, 0.5),
+                rgba(251, 7, 217, 0.5),
+                rgba(255, 0, 0, 0.5)
+            );
+        }
+
+        /* CD Jewel Case Acrylic Specular Highlight */
+        .jewel-case-shine {
+            background: linear-gradient(
+                135deg,
+                rgba(255, 255, 255, 0.4) 0%,
+                rgba(255, 255, 255, 0.1) 20%,
+                rgba(255, 255, 255, 0) 40%,
+                rgba(255, 255, 255, 0.05) 60%,
+                rgba(255, 255, 255, 0.25) 100%
+            );
+        }
+
+        /* CD Spin Animation */
+        @keyframes cdSpin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .animate-spin-cd {
+            animation: cdSpin 1.8s linear infinite;
+        }
+
+        /* Custom Scrollbar Y2K */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0a0d14;
+            border-left: 1px solid #1f293d;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #00f3ff;
+            border-radius: 0px;
+            box-shadow: 0 0 5px #00f3ff;
+        }
+
+        /* CRT Flicker */
+        @keyframes crtFlicker {
+            0% { opacity: 0.97; }
+            50% { opacity: 1; }
+            100% { opacity: 0.98; }
+        }
+        .crt-screen {
+            animation: crtFlicker 0.15s infinite;
+        }
+    </style>
+</head>
+<body class="bg-y2k-bg text-gray-200 font-sans min-h-screen relative overflow-x-hidden selection:bg-y2k-cyan selection:text-black">
+
+    <div class="fixed inset-0 matrix-grid pointer-events-none z-0"></div>
+    <div class="fixed inset-0 scanlines pointer-events-none z-50 opacity-40"></div>
+
+    <!-- MAIN WRAPPER -->
+    <div class="relative z-10 flex flex-col min-h-screen">
+
+        <!-- NAVBAR / HEADER -->
+        <header class="border-b-2 border-y2k-cyan/40 bg-y2k-panel/90 backdrop-blur-md sticky top-0 z-40 px-4 py-3">
+            <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+                
+                <!-- Logo & Branding -->
+                <div class="flex items-center space-x-3 cursor-pointer" onclick="filterCategory('ALL')">
+                    <div class="relative w-10 h-10 rounded-full cd-rainbow border-2 border-y2k-cyan flex items-center justify-center animate-spin-cd">
+                        <div class="w-3 h-3 rounded-full bg-y2k-bg border border-white"></div>
+                    </div>
+                    <div>
+                        <div class="flex items-center space-x-2">
+                            <span class="text-xs font-bold bg-y2k-magenta text-white px-1.5 py-0.5 tracking-wider uppercase rounded-sm">VCD 2.0</span>
+                            <span class="text-xs text-y2k-green font-mono tracking-widest">[ONLINE_DISC_RACK]</span>
+                        </div>
+                        <h1 class="text-xl md:text-2xl font-black italic tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-y2k-cyan via-white to-y2k-magenta">
+                            CINECLUBE 2000
+                        </h1>
+                    </div>
+                </div>
+
+                <!-- Search Bar -->
+                <div class="relative w-full md:w-80">
+                    <input 
+                        type="text" 
+                        id="searchInput"
+                        oninput="handleSearch(this.value)"
+                        placeholder="Buscar CD, Diretor, Ator..." 
+                        class="w-full bg-black/60 border-2 border-y2k-cyan/50 focus:border-y2k-cyan text-y2k-cyan placeholder-y2k-cyan/40 px-3 py-1.5 pl-9 text-sm font-mono focus:outline-none focus:shadow-neon-cyan transition"
+                    />
+                    <i data-lucide="search" class="absolute left-2.5 top-2.5 w-4 h-4 text-y2k-cyan/60"></i>
+                </div>
+
+                <!-- Stats / Audio Indicator -->
+                <div class="flex items-center space-x-4 text-xs font-mono">
+                    <button id="sfxToggleBtn" onclick="toggleAudio()" class="px-2.5 py-1 bg-y2k-panel border border-y2k-cyan text-y2k-cyan hover:bg-y2k-cyan hover:text-black transition flex items-center gap-1.5">
+                        <i data-lucide="volume-2" class="w-3.5 h-3.5"></i>
+                        <span id="sfxLabel">SFX: ON</span>
+                    </button>
+                    <div class="hidden sm:flex flex-col text-right">
+                        <span class="text-y2k-green">STATUS: READY</span>
+                        <span class="text-gray-400" id="totalCdCount">CDs CARREGADOS: 0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CATEGORY TABS -->
+            <div class="max-w-7xl mx-auto mt-3 pt-2 border-t border-y2k-border/60 flex items-center space-x-2 overflow-x-auto pb-1 text-xs font-mono scrollbar-none">
+                <button onclick="filterCategory('ALL')" class="cat-btn active border border-y2k-cyan bg-y2k-cyan text-black px-3 py-1 uppercase font-bold whitespace-nowrap transition">
+                    [TODOS OS CDs]
+                </button>
+                <button onclick="filterCategory('ACTION')" class="cat-btn border border-y2k-cyan/40 hover:border-y2k-cyan text-gray-300 hover:text-y2k-cyan px-3 py-1 uppercase whitespace-nowrap transition">
+                    Ação & Sci-Fi
+                </button>
+                <button onclick="filterCategory('CULT')" class="cat-btn border border-y2k-cyan/40 hover:border-y2k-cyan text-gray-300 hover:text-y2k-cyan px-3 py-1 uppercase whitespace-nowrap transition">
+                    Cult & Drama
+                </button>
+                <button onclick="filterCategory('ANIME')" class="cat-btn border border-y2k-cyan/40 hover:border-y2k-cyan text-gray-300 hover:text-y2k-cyan px-3 py-1 uppercase whitespace-nowrap transition">
+                    Animes & Animação
+                </button>
+                <button onclick="filterCategory('MY_LIST')" class="cat-btn border border-y2k-magenta/60 hover:border-y2k-magenta text-y2k-magenta px-3 py-1 uppercase whitespace-nowrap transition flex items-center gap-1">
+                    <i data-lucide="bookmark" class="w-3 h-3"></i> MINHA LISTA (<span id="savedCount">0</span>)
+                </button>
+            </div>
+        </header>
+
+        <!-- MAIN CONTENT AREA -->
+        <main class="flex-grow max-w-7xl mx-auto w-full px-4 py-8">
+            
+            <!-- VINTAGE CD SHELF HEADER -->
+            <div class="mb-6 flex items-center justify-between border-b border-y2k-cyan/30 pb-2">
+                <div class="flex items-center space-x-3">
+                    <i data-lucide="disc" class="text-y2k-cyan w-6 h-6"></i>
+                    <h2 class="text-lg font-mono font-bold tracking-widest text-y2k-cyan uppercase" id="currentSectionTitle">
+                        ESTANTE DIGITAL DE CDs & VCDs
+                    </h2>
+                </div>
+                <div class="text-xs font-mono text-gray-400 hidden md:block">
+                    CLIQUE NO JEWEL CASE PARA ABRIR O CD PLAYER
+                </div>
+            </div>
+
+            <!-- CD GRID / SHELF CONTAINER -->
+            <div id="cdGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 sm:gap-8">
+                <!-- CD Items Injected Dynamic -->
+            </div>
+
+            <!-- EMPTY STATE -->
+            <div id="emptyState" class="hidden text-center py-20 border-2 border-dashed border-y2k-border rounded-lg">
+                <i data-lucide="disc-3" class="w-16 h-16 text-y2k-cyan/30 mx-auto mb-4 animate-spin"></i>
+                <h3 class="text-xl font-mono text-y2k-cyan mb-2">NENHUM CD ENCONTRADO</h3>
+                <p class="text-sm font-mono text-gray-400 mb-4">Tente alterar os termos da busca ou filtre por outra categoria.</p>
+                <button onclick="filterCategory('ALL')" class="px-4 py-2 bg-y2k-cyan text-black font-mono font-bold hover:bg-white transition">
+                    RESTAURAR CATÁLOGO COMPLETE
+                </button>
+            </div>
+        </main>
+
+        <!-- FOOTER -->
+        <footer class="border-t border-y2k-border bg-black/80 py-6 px-4 text-center font-mono text-xs text-gray-500">
+            <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+                <div>
+                    © 2000 - 2026 CINECLUBE 2000 DIGITAL MEDIA INC. • FORMATO VCD 2.0 / MPEG-1 VIDEO
+                </div>
+                <div class="flex items-center space-x-4 text-y2k-cyan/70">
+                    <span>[HIGH AUDIO / VIDEO COMPACT DISC]</span>
+                    <span>•</span>
+                    <span>PAL / NTSC OPTICAL MEDIA</span>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- CD INSPECTOR & PLAYER MODAL -->
+    <div id="cdModal" class="fixed inset-0 z-50 hidden bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="relative w-full max-w-4xl bg-y2k-panel border-2 border-y2k-cyan shadow-neon-cyan rounded-lg overflow-hidden flex flex-col md:flex-row">
+            
+            <!-- CLOSE BUTTON -->
+            <button onclick="closeCdModal()" class="absolute top-3 right-3 z-20 text-y2k-cyan hover:text-white bg-black/60 border border-y2k-cyan p-1.5 transition">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+
+            <!-- LEFT SIDE: CD TRAY / VIRTUAL HARDWARE MECHANISM -->
+            <div class="w-full md:w-1/2 bg-black/80 p-6 flex flex-col items-center justify-center border-b md:border-b-0 md:border-r border-y2k-cyan/30 relative">
+                
+                <!-- Digital LED Track Display -->
+                <div class="w-full bg-black border border-y2k-green/50 p-2.5 mb-6 rounded flex items-center justify-between font-mono text-y2k-green text-xs shadow-inner">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-2 h-2 rounded-full bg-y2k-green animate-pulse"></div>
+                        <span id="playerStatusText">DISC READY</span>
+                    </div>
+                    <div class="text-right">
+                        <span id="playerTrackText">TRK 01</span> | <span id="playerTimerText">00:00:00</span>
+                    </div>
+                </div>
+
+                <!-- Animated CD Tray Mechanism -->
+                <div id="cdTrayContainer" class="relative w-64 h-64 sm:w-72 sm:h-72 flex items-center justify-center my-2 transition-all duration-700">
+                    <!-- Outer CD Tray Base -->
+                    <div class="absolute inset-0 bg-gradient-to-b from-gray-800 to-gray-950 border-4 border-y2k-border rounded-xl shadow-2xl flex items-center justify-center">
+                        <div class="w-60 h-60 rounded-full border border-gray-700/60 bg-black/40 flex items-center justify-center">
+                            <!-- Tray Laser Lens -->
+                            <div class="w-12 h-12 rounded-full border border-blue-500/40 bg-blue-900/20 flex items-center justify-center">
+                                <div class="w-3 h-3 rounded-full bg-cyan-400 shadow-neon-cyan"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Holographic CD Disc -->
+                    <div id="modalCdDisc" class="absolute w-56 h-56 sm:w-64 sm:h-64 rounded-full cd-rainbow border-2 border-white/40 shadow-2xl flex items-center justify-center transform transition-transform duration-700">
+                        <!-- Disc Artwork Label Ring -->
+                        <div class="absolute inset-4 rounded-full border border-white/20 pointer-events-none"></div>
+                        
+                        <!-- Spindle / Optical Center Rings -->
+                        <div class="w-20 h-20 rounded-full bg-gray-200/90 border-4 border-gray-400/80 shadow-cd-hole flex items-center justify-center relative">
+                            <!-- Inner Hole -->
+                            <div class="w-8 h-8 rounded-full bg-y2k-bg border border-gray-600"></div>
+                            <span class="absolute text-[8px] font-mono font-bold text-gray-700 uppercase tracking-tighter">COMPACT DISC</span>
+                        </div>
+
+                        <!-- VCD Logo & Title Printed on Disc Label -->
+                        <div class="absolute top-6 text-center">
+                            <span id="modalDiscCategory" class="text-[9px] font-mono bg-black/60 text-y2k-cyan px-2 py-0.5 rounded border border-y2k-cyan/40">VCD MOVIE</span>
+                        </div>
+                        <div class="absolute bottom-6 text-center max-w-[140px]">
+                            <p id="modalDiscTitle" class="text-[10px] font-bold font-mono text-black bg-white/80 px-1 truncate">TITLE HERE</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hardware Control Buttons -->
+                <div class="mt-6 flex items-center space-x-3">
+                    <button onclick="playLaserSfx(); triggerCdSpin();" class="p-2.5 bg-y2k-panel border border-y2k-cyan text-y2k-cyan hover:bg-y2k-cyan hover:text-black transition">
+                        <i data-lucide="rotate-cw" class="w-4 h-4"></i>
+                    </button>
+                    <button id="ejectBtn" onclick="toggleCdEject()" class="px-4 py-1.5 bg-y2k-magenta text-white font-mono text-xs font-bold border border-white/30 hover:bg-y2k-magenta/80 transition flex items-center gap-2">
+                        <i data-lucide="disc-3" class="w-4 h-4"></i>
+                        <span>EJECT / LOAD</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- RIGHT SIDE: METADATA & ACTIONS -->
+            <div class="w-full md:w-1/2 p-6 flex flex-col justify-between bg-y2k-panel">
+                <div>
+                    <!-- Badge header -->
+                    <div class="flex items-center justify-between text-xs font-mono mb-2">
+                        <span id="modalGenreBadge" class="bg-y2k-cyan/20 border border-y2k-cyan text-y2k-cyan px-2 py-0.5 uppercase">AÇÃO / SCI-FI</span>
+                        <span id="modalDiscCount" class="text-y2k-yellow">DISC 1 OF 2 (VCD 2.0)</span>
+                    </div>
+
+                    <!-- Movie Title -->
+                    <h2 id="modalMovieTitle" class="text-2xl font-black text-white italic tracking-wide uppercase mb-1">
+                        TITULO DO FILME
+                    </h2>
+                    
+                    <div class="flex items-center space-x-4 text-xs font-mono text-gray-400 mb-4 border-b border-y2k-border pb-2">
+                        <span id="modalYear">2000</span>
+                        <span>•</span>
+                        <span id="modalDuration">120 MIN</span>
+                        <span>•</span>
+                        <span id="modalAudio" class="text-y2k-green">AUDIO: DOLBY STEREO 2.0</span>
+                    </div>
+
+                    <!-- Synopsis -->
+                    <p id="modalSynopsis" class="text-xs sm:text-sm text-gray-300 font-mono leading-relaxed mb-4">
+                        Descrição do filme em formato retrô de encarte de Compact Disc...
+                    </p>
+
+                    <!-- Cast & Crew -->
+                    <div class="text-xs font-mono space-y-1 bg-black/40 p-3 border border-y2k-border mb-6">
+                        <p><span class="text-y2k-cyan">DIREÇÃO:</span> <span id="modalDirector" class="text-gray-300">...</span></p>
+                        <p><span class="text-y2k-cyan">ELENCO:</span> <span id="modalCast" class="text-gray-300">...</span></p>
+                    </div>
+                </div>
+
+                <!-- Action Controls -->
+                <div class="space-y-2.5 font-mono text-xs">
+                    <button onclick="launchVcdPlayer()" class="w-full py-2.5 bg-gradient-to-r from-y2k-cyan to-blue-600 text-black font-bold tracking-wider hover:opacity-90 transition shadow-neon-cyan flex items-center justify-center gap-2">
+                        <i data-lucide="play" class="w-4 h-4 fill-current"></i>
+                        <span>PLAY VCD PREVIEW (CRT TV)</span>
+                    </button>
+
+                    <div class="grid grid-cols-2 gap-2">
+                        <button id="modalSaveBtn" onclick="toggleSaveCurrentCd()" class="py-2 bg-black border border-y2k-magenta text-y2k-magenta hover:bg-y2k-magenta hover:text-white transition flex items-center justify-center gap-1.5 font-bold">
+                            <i data-lucide="bookmark" class="w-3.5 h-3.5"></i>
+                            <span id="modalSaveText">+ MINHA LISTA</span>
+                        </button>
+                        <button onclick="rentCdSimulate()" class="py-2 bg-y2k-panel border border-y2k-yellow text-y2k-yellow hover:bg-y2k-yellow hover:text-black transition flex items-center justify-center gap-1.5 font-bold">
+                            <i data-lucide="shopping-bag" class="w-3.5 h-3.5"></i>
+                            <span>ALUGAR CD (R$ 5,00)</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CRT VCD PREVIEW VIDEO PLAYER MODAL -->
+    <div id="crtModal" class="fixed inset-0 z-50 hidden bg-black/95 flex items-center justify-center p-4">
+        <div class="relative w-full max-w-3xl bg-gray-900 border-4 border-gray-700 rounded-3xl p-6 shadow-2xl crt-screen flex flex-col items-center">
+            
+            <!-- CLOSE CRT BUTTON -->
+            <button onclick="closeCrtModal()" class="absolute top-4 right-4 text-y2k-magenta hover:text-white font-mono text-xs border border-y2k-magenta px-3 py-1">
+                [DESLIGAR TV]
+            </button>
+
+            <!-- TV BRAND -->
+            <div class="text-gray-500 font-mono text-[10px] tracking-widest uppercase mb-2">TELEVISOR Y2K TRINITRON 21" - VCD SIGNAL</div>
+
+            <!-- TV SCREEN AREA -->
+            <div class="relative w-full aspect-video bg-black border-4 border-gray-950 rounded-2xl overflow-hidden flex items-center justify-center shadow-inner">
+                
+                <!-- Retro On Screen Display (OSD) -->
+                <div class="absolute top-4 left-4 z-20 font-mono text-y2k-green text-sm flex items-center space-x-2">
+                    <div class="w-3 h-3 rounded-full bg-red-600 animate-ping"></div>
+                    <span>PLAY VCD 2.0 • 00:03:42</span>
+                </div>
+
+                <!-- CRT Video Simulation Overlay -->
+                <div class="absolute inset-0 bg-gradient-to-b from-transparent via-cyan-500/10 to-transparent pointer-events-none z-10"></div>
+
+                <!-- Simulated Playing Content / Animated Graphic -->
+                <div class="text-center p-6 space-y-4">
+                    <div id="crtMovieDisplay" class="relative w-32 h-32 mx-auto rounded-full cd-rainbow animate-spin-cd flex items-center justify-center border-2 border-cyan-300">
+                        <div class="w-10 h-10 rounded-full bg-black"></div>
+                    </div>
+                    <h3 id="crtMovieTitle" class="text-xl font-mono font-bold text-y2k-cyan tracking-wider uppercase">
+                        EXIBINDO VCD...
+                    </h3>
+                    <p class="text-xs font-mono text-y2k-yellow">EXIBIÇÃO DE VCD SIMULADA EM 352x240 MPEG-1 VIDEO @ 30FPS</p>
+                </div>
+            </div>
+
+            <!-- TV CONTROLS -->
+            <div class="mt-4 flex items-center space-x-4 font-mono text-xs text-gray-400">
+                <span class="flex items-center gap-1"><i data-lucide="tv" class="w-4 h-4 text-y2k-cyan"></i> CANAL: VCD-1</span>
+                <span>•</span>
+                <span class="text-y2k-green">SINAL: NTSC STEREO</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- NOTIFICATION TOAST -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 hidden bg-y2k-panel border-2 border-y2k-cyan text-y2k-cyan px-4 py-3 font-mono text-xs shadow-neon-cyan flex items-center space-x-2">
+        <i data-lucide="check-circle" class="w-4 h-4 text-y2k-green"></i>
+        <span id="toastMsg">NOTIFICAÇÃO</span>
+    </div>
+
+    <!-- JAVASCRIPT APP LOGIC -->
+    <script>
+        // WEB AUDIO API RETRO SOUND SYNTHESIZER
+        let audioCtx = null;
+        let sfxEnabled = true;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function playClickSfx() {
+            if (!sfxEnabled) return;
+            initAudio();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(400, audioCtx.currentTime + 0.05);
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.05);
+        }
+
+        function playLaserSfx() {
+            if (!sfxEnabled) return;
+            initAudio();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(1200, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(300, audioCtx.currentTime + 0.15);
+            gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.15);
+        }
+
+        function playMotorSfx() {
+            if (!sfxEnabled) return;
+            initAudio();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(120, audioCtx.currentTime);
+            osc.frequency.linearRampToValueAtTime(220, audioCtx.currentTime + 0.3);
+            gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.3);
+        }
+
+        function toggleAudio() {
+            sfxEnabled = !sfxEnabled;
+            document.getElementById('sfxLabel').innerText = sfxEnabled ? 'SFX: ON' : 'SFX: OFF';
+            showToast(sfxEnabled ? 'EFEITOS SONOROS ATIVADOS' : 'EFEITOS SONOROS DESATIVADOS');
+        }
+
+        // MOVIE CATALOG DATA (Y2K CD OPTICAL FORMAT)
+        const MOVIES_DATABASE = [
+            {
+                id: 'cd-1',
+                title: 'THE MATRIX',
+                year: '1999',
+                category: 'ACTION',
+                duration: '136 MIN',
+                discCount: 'DISC 1 & 2',
+                coverColor: 'from-green-600 via-emerald-800 to-black',
+                director: 'Lana & Lilly Wachowski',
+                cast: 'Keanu Reeves, Laurence Fishburne, Carrie-Anne Moss',
+                synopsis: 'Um jovem hacker descobre a verdade sobre a realidade simulada chamada Matrix e seu papel na guerra contra as máquinas.'
+            },
+            {
+                id: 'cd-2',
+                title: 'CLUBE DA LUTA',
+                year: '1999',
+                category: 'CULT',
+                duration: '139 MIN',
+                discCount: 'DISC 1 OF 2',
+                coverColor: 'from-pink-600 via-purple-900 to-black',
+                director: 'David Fincher',
+                cast: 'Brad Pitt, Edward Norton, Helena Bonham Carter',
+                synopsis: 'Um homem insone e um vendedor de sabão formam um clube secreto de lutas subterrâneas com regras bem específicas.'
+            },
+            {
+                id: 'cd-3',
+                title: 'AKIRA',
+                year: '1988',
+                category: 'ANIME',
+                duration: '124 MIN',
+                discCount: 'DISC 1 SINGLE VCD',
+                coverColor: 'from-red-600 via-rose-900 to-black',
+                director: 'Katsuhiro Otomo',
+                cast: 'Mitsuo Iwata, Nozomu Sasaki, Mami Koyama',
+                synopsis: 'Na futurista Neo-Tóquio, um projeto militar secreto ameaça destruir a cidade quando um jovem ganha poderes psíquicos incontroláveis.'
+            },
+            {
+                id: 'cd-4',
+                title: 'O QUINTO ELEMENTO',
+                year: '1997',
+                category: 'ACTION',
+                duration: '126 MIN',
+                discCount: 'DISC 1 & 2',
+                coverColor: 'from-orange-500 via-amber-800 to-black',
+                director: 'Luc Besson',
+                cast: 'Bruce Willis, Milla Jovovich, Gary Oldman',
+                synopsis: 'No século 23, um motorista de táxi precisa proteger uma mulher misteriosa que é a chave para a salvação da Terra.'
+            },
+            {
+                id: 'cd-5',
+                title: 'PULP FICTION',
+                year: '1994',
+                category: 'CULT',
+                duration: '154 MIN',
+                discCount: 'DISC 1 OF 2',
+                coverColor: 'from-yellow-500 via-amber-900 to-black',
+                director: 'Quentin Tarantino',
+                cast: 'John Travolta, Uma Thurman, Samuel L. Jackson',
+                synopsis: 'As vidas de dois assassinos da máfia, a esposa de um gangster e um pugilista se entrelaçam em contos de violência e redenção.'
+            },
+            {
+                id: 'cd-6',
+                title: 'GHOST IN THE SHELL',
+                year: '1995',
+                category: 'ANIME',
+                duration: '83 MIN',
+                discCount: 'DISC 1 SINGLE VCD',
+                coverColor: 'from-cyan-600 via-blue-900 to-black',
+                director: 'Mamoru Oshii',
+                cast: 'Atsuko Tanaka, Akio Ōtsuka, Iemasa Kayumi',
+                synopsis: 'Uma ciborgue agente de segurança caça um misterioso hacker conhecido como o Mestre das Marionetes na Neo-Tóquio de 2029.'
+            },
+            {
+                id: 'cd-7',
+                title: 'BLADE RUNNER 2099',
+                year: '1982',
+                category: 'ACTION',
+                duration: '117 MIN',
+                discCount: 'DISC 1 & 2',
+                coverColor: 'from-indigo-600 via-slate-900 to-black',
+                director: 'Ridley Scott',
+                cast: 'Harrison Ford, Rutger Hauer, Sean Young',
+                synopsis: 'Um caçador de replicantes recebe a missão de eliminar quatro humanos sintéticos fugitivos na chuvosa Los Angeles.'
+            },
+            {
+                id: 'cd-8',
+                title: 'DONNIE DARKO',
+                year: '2001',
+                category: 'CULT',
+                duration: '113 MIN',
+                discCount: 'DISC 1 SINGLE VCD',
+                coverColor: 'from-purple-700 via-indigo-950 to-black',
+                director: 'Richard Kelly',
+                cast: 'Jake Gyllenhaal, Jena Malone, Drew Barrymore',
+                synopsis: 'Um adolescente conturbado é guiado por uma figura fantasiada de coelho gigante após sobreviver a um bizarro acidente.'
+            }
+        ];
+
+        // APP STATE
+        let currentCategory = 'ALL';
+        let searchQuery = '';
+        let savedCdIds = JSON.parse(localStorage.getItem('y2k_saved_cds') || '[]');
+        let selectedMovie = null;
+        let isCdEjected = false;
+
+        // INITIALIZATION
+        window.addEventListener('DOMContentLoaded', () => {
+            renderGrid();
+            updateSavedBadge();
+            lucide.createIcons();
+        });
+
+        function renderGrid() {
+            const grid = document.getElementById('cdGrid');
+            const emptyState = document.getElementById('emptyState');
+            grid.innerHTML = '';
+
+            let filtered = MOVIES_DATABASE.filter(movie => {
+                const matchesCat = 
+                    currentCategory === 'ALL' ? true :
+                    currentCategory === 'MY_LIST' ? savedCdIds.includes(movie.id) :
+                    movie.category === currentCategory;
+
+                const matchesSearch = 
+                    movie.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    movie.director.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    movie.cast.toLowerCase().includes(searchQuery.toLowerCase());
+
+                return matchesCat && matchesSearch;
+            });
+
+            document.getElementById('totalCdCount').innerText = `CDs CARREGADOS: ${filtered.length}`;
+
+            if (filtered.length === 0) {
+                grid.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            grid.classList.remove('hidden');
+            emptyState.classList.add('hidden');
+
+            filtered.forEach(movie => {
+                const isSaved = savedCdIds.includes(movie.id);
+                const cdCard = document.createElement('div');
+                cdCard.className = 'group relative cursor-pointer transform hover:-translate-y-2 transition-all duration-300';
+                cdCard.onclick = () => openCdModal(movie);
+
+                cdCard.innerHTML = `
+                    <!-- JEWEL CASE FRAME -->
+                    <div class="relative w-full aspect-square bg-gray-900 border-2 border-gray-600 rounded-sm p-1.5 shadow-jewel jewel-case-shine overflow-hidden">
+                        
+                        <!-- JEWEL CASE HINGE LEFT -->
+                        <div class="absolute left-0 top-0 bottom-0 w-2.5 bg-gray-800 border-r border-gray-700/80 z-20 flex flex-col justify-between py-2">
+                            <div class="w-full h-1 bg-gray-600"></div>
+                            <div class="w-full h-1 bg-gray-600"></div>
+                        </div>
+
+                        <!-- BOOKLET / COVER INSERT & VISIBLE CD SLIDE EFFECT -->
+                        <div class="relative w-full h-full bg-gradient-to-br ${movie.coverColor} p-2 flex flex-col justify-between overflow-hidden border border-black/60">
+                            
+                            <!-- HOLOGRAPHIC CD VISIBLE SLIDING OUT ON HOVER -->
+                            <div class="absolute -right-12 top-2 w-28 h-28 rounded-full cd-rainbow border border-white/50 opacity-80 group-hover:right-1 transition-all duration-500 shadow-md flex items-center justify-center">
+                                <div class="w-8 h-8 rounded-full bg-y2k-bg border border-gray-400"></div>
+                            </div>
+
+                            <!-- TOP BADGE -->
+                            <div class="relative z-10 flex items-center justify-between">
+                                <span class="bg-black/70 text-y2k-cyan text-[8px] font-mono px-1 border border-y2k-cyan/40 uppercase">VCD 2.0</span>
+                                ${isSaved ? '<i data-lucide="bookmark" class="w-3.5 h-3.5 text-y2k-magenta fill-current"></i>' : ''}
+                            </div>
+
+                            <!-- MOVIE TITLE ON COVER INSERT -->
+                            <div class="relative z-10 my-auto">
+                                <h3 class="font-black text-sm text-white tracking-wide uppercase italic leading-tight drop-shadow-md">
+                                    ${movie.title}
+                                </h3>
+                                <p class="text-[9px] font-mono text-gray-300 mt-0.5">${movie.year} • ${movie.duration}</p>
+                            </div>
+
+                            <!-- COMPACT DISC DIGITAL VIDEO LOGO -->
+                            <div class="relative z-10 flex items-center justify-between border-t border-white/20 pt-1 text-[8px] font-mono text-gray-300">
+                                <span>COMPACT DISC</span>
+                                <span class="text-y2k-green">${movie.discCount}</span>
+                            </div>
+                        </div>
+
+                        <!-- ACRYLIC SHINE OVERLAY -->
+                        <div class="absolute inset-0 jewel-case-shine pointer-events-none z-30"></div>
+                    </div>
+
+                    <!-- CARD FOOTER TEXT -->
+                    <div class="mt-2 text-center">
+                        <span class="text-xs font-mono font-bold text-y2k-cyan group-hover:text-white transition truncate block">
+                            ${movie.title}
+                        </span>
+                    </div>
+                `;
+
+                grid.appendChild(cdCard);
+            });
+
+            lucide.createIcons();
+        }
+
+        function openCdModal(movie) {
+            playLaserSfx();
+            selectedMovie = movie;
+            isCdEjected = false;
+
+            // Populate metadata
+            document.getElementById('modalMovieTitle').innerText = movie.title;
+            document.getElementById('modalDiscTitle').innerText = movie.title;
+            document.getElementById('modalGenreBadge').innerText = movie.category;
+            document.getElementById('modalDiscCount').innerText = movie.discCount;
+            document.getElementById('modalYear').innerText = movie.year;
+            document.getElementById('modalDuration').innerText = movie.duration;
+            document.getElementById('modalSynopsis').innerText = movie.synopsis;
+            document.getElementById('modalDirector').innerText = movie.director;
+            document.getElementById('modalCast').innerText = movie.cast;
+
+            // Player LED Display
+            document.getElementById('playerStatusText').innerText = 'DISC LOADED';
+            document.getElementById('playerTrackText').innerText = 'TRK 01';
+            document.getElementById('playerTimerText').innerText = '00:00:01';
+
+            // Reset Cd Tray position
+            const trayDisc = document.getElementById('modalCdDisc');
+            trayDisc.classList.remove('-translate-x-24', 'opacity-30');
+
+            updateSaveModalButton();
+
+            // Show modal
+            document.getElementById('cdModal').classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        function closeCdModal() {
+            playClickSfx();
+            document.getElementById('cdModal').classList.add('hidden');
+        }
+
+        function toggleCdEject() {
+            playMotorSfx();
+            const trayDisc = document.getElementById('modalCdDisc');
+            const statusText = document.getElementById('playerStatusText');
+
+            isCdEjected = !isCdEjected;
+
+            if (isCdEjected) {
+                trayDisc.classList.add('-translate-x-24', 'opacity-30');
+                statusText.innerText = 'TRAY OPEN / EJECT';
+            } else {
+                trayDisc.classList.remove('-translate-x-24', 'opacity-30');
+                statusText.innerText = 'DISC LOADED';
+                playLaserSfx();
+            }
+        }
+
+        function triggerCdSpin() {
+            const disc = document.getElementById('modalCdDisc');
+            disc.classList.add('animate-spin-cd');
+            setTimeout(() => {
+                disc.classList.remove('animate-spin-cd');
+            }, 3600);
+        }
+
+        // CRT VIDEO PREVIEW SIMULATION
+        function launchVcdPlayer() {
+            playLaserSfx();
+            document.getElementById('crtMovieTitle').innerText = `EXIBINDO VCD: ${selectedMovie.title}`;
+            document.getElementById('crtModal').classList.remove('hidden');
+        }
+
+        function closeCrtModal() {
+            playClickSfx();
+            document.getElementById('crtModal').classList.add('hidden');
+        }
+
+        // SAVED LIST / WATCHLIST MANAGEMENT
+        function toggleSaveCurrentCd() {
+            if (!selectedMovie) return;
+            playClickSfx();
+
+            const idx = savedCdIds.indexOf(selectedMovie.id);
+            if (idx > -1) {
+                savedCdIds.splice(idx, 1);
+                showToast(`REMOVIDO DA SUA LISTA: ${selectedMovie.title}`);
+            } else {
+                savedCdIds.push(selectedMovie.id);
+                showToast(`ADICIONADO À MINHA LISTA: ${selectedMovie.title}`);
+            }
+
+            localStorage.setItem('y2k_saved_cds', JSON.stringify(savedCdIds));
+            updateSaveModalButton();
+            updateSavedBadge();
+            renderGrid();
+        }
+
+        function updateSaveModalButton() {
+            if (!selectedMovie) return;
+            const isSaved = savedCdIds.includes(selectedMovie.id);
+            document.getElementById('modalSaveText').innerText = isSaved ? 'REMOVER DA LISTA' : '+ MINHA LISTA';
+        }
+
+        function updateSavedBadge() {
+            document.getElementById('savedCount').innerText = savedCdIds.length;
+        }
+
+        function rentCdSimulate() {
+            playClickSfx();
+            showToast(`CD "${selectedMovie.title}" ALUGADO COM SUCESSO!`);
+        }
+
+        // CATEGORY & SEARCH FILTERS
+        function filterCategory(cat) {
+            playClickSfx();
+            currentCategory = cat;
+
+            // Update Tab UI
+            document.querySelectorAll('.cat-btn').forEach(btn => {
+                btn.classList.remove('bg-y2k-cyan', 'text-black', 'font-bold');
+            });
+
+            const titles = {
+                'ALL': 'ESTANTE DIGITAL DE CDs & VCDs',
+                'ACTION': 'CDs - AÇÃO & SCI-FI',
+                'CULT': 'CDs - CULT & DRAMA',
+                'ANIME': 'CDs - ANIMES & ANIMAÇÃO',
+                'MY_LIST': 'MINHA COLEÇÃO DE CDs SALVOS'
+            };
+
+            document.getElementById('currentSectionTitle').innerText = titles[cat] || 'CATÁLOGO DE CDs';
+            renderGrid();
+        }
+
+        function handleSearch(val) {
+            searchQuery = val;
+            renderGrid();
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMsg').innerText = msg;
+            toast.classList.remove('hidden');
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
