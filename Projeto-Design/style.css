@@ -1293,3 +1293,43 @@ body {
     animation: none;
   }
 }
+
+
+/* =========================================
+   NOVO: PRATELEIRAS, MODAL E PLAYER
+   (só visual — a lógica é no script.js)
+========================================= */
+.shelf-menu{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:10px auto 0;max-width:640px}
+.shelf-menu[hidden]{display:none}
+.shelf-menu button{background:transparent;border:1px solid var(--line);color:var(--dim);font:inherit;font-size:10px;text-transform:uppercase;letter-spacing:.06em;padding:5px 10px;border-radius:3px;cursor:pointer}
+.shelf-menu button:hover{color:var(--text)}
+.shelf-menu button.on{color:var(--gold);border-color:var(--gold)}
+
+.slot{cursor:pointer}
+.slot.selected{outline:1px solid var(--gold);outline-offset:4px}
+
+.modal{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(3,4,8,.78)}
+.modal[hidden]{display:none}
+.modal-box,.player-box{position:relative;width:min(720px,100%);max-height:92vh;overflow:auto;background:var(--panel);border:1px solid var(--line);border-top:3px solid var(--red);border-radius:4px;box-shadow:0 20px 60px rgba(0,0,0,.7);animation:modalin .2s var(--ease)}
+.modal-box{display:grid;grid-template-columns:200px 1fr;gap:20px;padding:24px}
+.modal-x{position:absolute;top:8px;right:12px;background:none;border:0;color:var(--dim);font-size:24px;line-height:1;cursor:pointer;z-index:2}
+.modal-x:hover{color:var(--red)}
+.modal-poster img{width:100%;display:block;border:1px solid var(--line);border-radius:2px}
+.modal-body h2{color:var(--gold);text-transform:uppercase;letter-spacing:.06em;font-size:18px;margin-bottom:6px}
+.modal-meta{color:var(--dim);text-transform:uppercase;font-size:10px;margin-bottom:4px}
+.modal-dir{margin-bottom:10px;font-size:11px}
+.modal-desc{color:var(--text);margin-bottom:16px}
+.modal-actions{display:flex;flex-wrap:wrap;gap:8px}
+.modal-actions .btn.on{background:rgba(255,93,143,.18)}
+
+.player-box{padding:24px;width:min(560px,100%)}
+.player-screen{background:#050607;border:1px solid var(--line);border-radius:6px;aspect-ratio:16/9;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center;color:var(--green);position:relative;overflow:hidden}
+.player-screen::after{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(255,255,255,.04) 0 1px,transparent 1px 3px)}
+.player-screen h3{color:var(--text);letter-spacing:.1em}
+.player-state{font-size:12px;letter-spacing:.1em}
+.player-bar{height:6px;background:var(--line);border-radius:3px;margin:14px 0 10px;overflow:hidden}
+.player-progress{height:100%;width:0;background:var(--red)}
+.player-ctrl{display:flex;justify-content:space-between;align-items:center;color:var(--dim)}
+
+@keyframes modalin{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
+@media (max-width:640px){.modal-box{grid-template-columns:1fr;padding:16px}.modal-poster{max-width:160px;margin:0 auto}}
