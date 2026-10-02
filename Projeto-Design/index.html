@@ -1,0 +1,932 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>CINECLUBE</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="style.css" />
+
+    <style id="topo-ajustes">
+      /* ===== Hero: VHS física à esquerda, info à direita ===== */
+      body .vcr {
+        position: relative;
+        display: grid;
+        grid-template-columns: minmax(300px, 440px) 1fr;
+        gap: clamp(24px, 4vw, 56px);
+        align-items: center;
+      }
+      body .vcr .vcr-info {
+        position: relative;
+        z-index: 1;
+        min-width: 0;
+      }
+      /* pôster de fundo: quase imperceptível, nunca um banner */
+      body .vcr .selected-banner {
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        opacity: 0.05;
+        background-size: cover;
+        background-position: center;
+        border-radius: inherit;
+        pointer-events: none;
+        filter: grayscale(1);
+      }
+
+      body .vcr .vcr-tape {
+        all: unset;
+        display: block;
+        position: relative;
+        z-index: 1;
+        box-sizing: border-box;
+        width: 100%;
+        max-width: 440px;
+        padding: 8px 10px 36px;
+        perspective: 1000px;
+        container-type: inline-size;
+      }
+      body .vcr .vt-body {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 188 / 104;
+        border-radius: 2.2cqw;
+        font-family: "Space Mono", monospace;
+        background: linear-gradient(
+          180deg,
+          #2b2d34 0%,
+          #1b1c21 12%,
+          #141519 60%,
+          #0f1013 100%
+        );
+        box-shadow:
+          inset 0 0.4cqw 0.3cqw rgba(255, 255, 255, 0.14),
+          inset 0 -0.6cqw 0.8cqw rgba(0, 0, 0, 0.7),
+          0 1cqw 0 #0a0a0c,
+          0 1.6cqw 0 #1d1e24,
+          0 3cqw 2cqw rgba(0, 0, 0, 0.7),
+          0 6cqw 7cqw rgba(0, 0, 0, 0.8);
+        transform: rotateX(16deg) rotateZ(-2.5deg);
+        transition: transform 0.35s ease;
+      }
+      body .vcr .vt-body:hover {
+        transform: rotateX(8deg) rotateZ(-1deg) translateY(-6px);
+      }
+      body .vcr .vt-screw {
+        position: absolute;
+        width: 2.4cqw;
+        height: 2.4cqw;
+        border-radius: 50%;
+        background: radial-gradient(circle at 35% 30%, #6b7280, #1f2128 70%);
+        box-shadow: 0 0 0 0.3cqw #0a0a0c;
+      }
+      body .vcr .vt-screw::after {
+        content: "";
+        position: absolute;
+        left: 15%;
+        right: 15%;
+        top: 45%;
+        height: 10%;
+        background: #0a0a0c;
+        transform: rotate(35deg);
+      }
+      body .vcr .vt-top {
+        position: absolute;
+        top: 1.4cqw;
+        left: 10%;
+        right: 10%;
+        display: flex;
+        justify-content: space-between;
+        font-size: 1.7cqw;
+        letter-spacing: 0.1em;
+        color: #666b76;
+      }
+      body .vcr .vt-window {
+        position: absolute;
+        left: 8%;
+        right: 8%;
+        top: 8%;
+        height: 35%;
+        border-radius: 1.6cqw;
+        overflow: hidden;
+        background: linear-gradient(180deg, #050607, #121317);
+        border: 0.5cqw solid #2a2c34;
+        box-shadow:
+          inset 0 0 2cqw #000,
+          0 0.2cqw 0 rgba(255, 255, 255, 0.08);
+      }
+      body .vcr .vt-window::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background: linear-gradient(
+          115deg,
+          rgba(255, 255, 255, 0.16) 0,
+          rgba(255, 255, 255, 0) 35%,
+          rgba(255, 255, 255, 0) 60%,
+          rgba(255, 255, 255, 0.07) 70%,
+          rgba(255, 255, 255, 0) 80%
+        );
+      }
+      body .vcr .vt-window .vcr-reels {
+        position: absolute;
+        inset: 0;
+        display: block;
+      }
+      body .vcr .vt-window .vcr-reels i {
+        all: unset;
+        position: absolute;
+        top: 50%;
+        border-radius: 50%;
+        box-sizing: border-box;
+        transform: translate(-50%, -50%);
+        background:
+          radial-gradient(circle, #0b0b0d 0 15%, transparent 16%),
+          repeating-conic-gradient(#e6e9ee 0 22deg, #4a4e57 22deg 60deg)
+            center / 46% 46% no-repeat,
+          radial-gradient(
+            circle,
+            transparent 0 42%,
+            #5a3d28 43%,
+            #33200f 72%,
+            #1d1209 100%
+          );
+        box-shadow: inset 0 0 1cqw rgba(0, 0, 0, 0.8);
+        animation: vtspin 14s linear infinite;
+      }
+      body .vcr .vt-window .vcr-reels i:first-child {
+        left: 27%;
+        width: 17cqw;
+        height: 17cqw;
+      }
+      body .vcr .vt-window .vcr-reels i:last-child {
+        left: 73%;
+        width: 13.5cqw;
+        height: 13.5cqw;
+        animation-duration: 9s;
+      }
+      @keyframes vtspin {
+        from {
+          transform: translate(-50%, -50%) rotate(0);
+        }
+        to {
+          transform: translate(-50%, -50%) rotate(360deg);
+        }
+      }
+      body .vcr .vt-band {
+        position: absolute;
+        left: 33%;
+        right: 33%;
+        bottom: 14%;
+        height: 1.3cqw;
+        border-radius: 1cqw;
+        background: linear-gradient(180deg, #8a5d3f, #3a2314);
+        box-shadow: 0 0.2cqw 0.4cqw rgba(0, 0, 0, 0.8);
+      }
+      body .vcr .vt-label {
+        position: absolute;
+        left: 7%;
+        right: 7%;
+        top: 47%;
+        height: 34%;
+        box-sizing: border-box;
+        border-radius: 0.8cqw;
+        border-left: 1.6cqw solid #ff2b2b;
+        padding: 1.2cqw 2cqw 1.2cqw 2.6cqw;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        overflow: hidden;
+        color: #0f172a;
+        background: #e2e8f0
+          repeating-linear-gradient(
+            0deg,
+            transparent 0 2.4cqw,
+            rgba(0, 0, 0, 0.035) 2.4cqw 2.6cqw
+          );
+        box-shadow: 0.2cqw 0.5cqw 1.2cqw rgba(0, 0, 0, 0.5);
+      }
+      body .vcr .vt-label .vt-l1 {
+        all: unset;
+        font-size: 1.9cqw;
+        letter-spacing: 0.06em;
+        color: #4b5563;
+      }
+      body .vcr .vt-label strong {
+        all: unset;
+        display: block;
+        font-size: 5cqw;
+        font-weight: 700;
+        line-height: 1.1;
+        color: #0f172a;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        text-transform: uppercase;
+      }
+      body .vcr .vt-label .vt-l3 {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 2.2cqw;
+        color: #1e293b;
+        border-top: 0.2cqw solid rgba(71, 85, 105, 0.45);
+        padding-top: 0.5cqw;
+      }
+      body .vcr .vt-label .vt-l3 small {
+        all: unset;
+        font-weight: 700;
+      }
+      body .vcr .vt-foot {
+        position: absolute;
+        left: 12%;
+        right: 12%;
+        bottom: 0;
+        height: 13%;
+        clip-path: polygon(4% 0, 96% 0, 100% 100%, 0 100%);
+        background: linear-gradient(180deg, #08080a, #17181d);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 8%;
+        font-size: 1.5cqw;
+        letter-spacing: 0.12em;
+        color: #6b7280;
+      }
+      body .vcr .vt-foot i {
+        width: 2cqw;
+        height: 2cqw;
+        border-radius: 50%;
+        background: #030304;
+        box-shadow:
+          inset 0 0.2cqw 0.3cqw #000,
+          0 0.15cqw 0 rgba(255, 255, 255, 0.08);
+      }
+      body .vcr .vt-tab {
+        position: absolute;
+        right: 7%;
+        bottom: 0;
+        width: 6cqw;
+        height: 1cqw;
+        background: #050506;
+        border-radius: 0.5cqw 0.5cqw 0 0;
+      }
+
+      /* ===== Menu: itens claramente clicáveis, mesmo visual minimalista ===== */
+      body .nav button,
+      body .mylist {
+        cursor: pointer;
+        border-bottom: 2px solid transparent;
+        transition:
+          color 0.15s,
+          border-color 0.15s;
+      }
+      body .nav button::before,
+      body .mylist::before {
+        display: inline-block;
+        margin-right: 0.5em;
+        font-size: 0.85em;
+        opacity: 0.85;
+      }
+      body .nav button[data-filter="todos"]::before {
+        content: "\25A3";
+      }
+      body .nav button[data-filter="estante"]::before {
+        content: "\25A4";
+      }
+      body .nav button[data-filter="box"]::before {
+        content: "\25C8";
+      }
+      body .nav button[data-filter="chegou"]::before {
+        content: "\25CF";
+        color: #ff2b2b;
+      }
+      body .nav button:not(.on):hover,
+      body .mylist:not(.on):hover {
+        color: #f3f4f6;
+        border-bottom-color: rgba(242, 189, 63, 0.45);
+      }
+      body .nav button.on,
+      body .mylist.on {
+        color: #f2bd3f;
+        border-bottom-color: #f2bd3f;
+      }
+      body .nav button:focus-visible,
+      body .mylist:focus-visible {
+        outline: 1px dashed #f2bd3f;
+        outline-offset: 4px;
+      }
+      body .mylist {
+        display: flex;
+        width: max-content;
+        margin: 12px auto 0;
+      }
+
+      @media (max-width: 860px) {
+        body .vcr {
+          grid-template-columns: 1fr;
+          justify-items: center;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        body .vcr .vt-window .vcr-reels i {
+          animation: none;
+        }
+        body .vcr .vt-body {
+          transition: none;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="vhs-screen-filter" aria-hidden="true"></div>
+    <header class="top">
+      <h1 class="logo">
+        <i></i>
+
+        <span class="logo-text" data-text="CINECLUBE"> CINECLUBE </span>
+      </h1>
+
+      <p class="sub">Acervo físico de fitas VHS — o seu clássico em casa</p>
+
+      <!-- Menu-filtro -->
+
+      <nav class="nav" id="menu">
+        <button type="button" class="on" data-filter="todos">Fitas VHS</button>
+
+        <button type="button" data-filter="estante">Prateleiras</button>
+
+        <button type="button" data-filter="box">Box sets</button>
+
+        <button type="button" data-filter="chegou">Chegou agora</button>
+      </nav>
+
+      <button
+        type="button"
+        class="mylist"
+        id="btn-menu-lista"
+        data-filter="minha-lista"
+      >
+        ♥ Minha lista (<span id="list-count">0</span>)
+      </button>
+    </header>
+
+    <main class="wrap">
+      <!-- =========================================
+         VCR PRINCIPAL
+    ========================================== -->
+
+      <section class="vcr" id="selected">
+        <!-- Pôster principal do filme selecionado -->
+
+        <div
+          class="selected-banner"
+          id="selected-banner"
+          style="
+            background-image: url(&quot;https://m.media-amazon.com/images/M/MV5BNzQzMzJhZTEtOWM4NS00MTdhLTg0YjgtMjM4MDRkZjUwZDBlXkEyXkFqcGdeQXVyNjU0OTQ0OTY@._V1_SX300.jpg&quot;);
+          "
+        ></div>
+
+        <div class="vcr-tape">
+          <div class="vt-body" role="img" aria-label="Fita VHS selecionada">
+            <i class="vt-screw" style="left: 2.4cqw; top: 2.4cqw"></i>
+            <i class="vt-screw" style="right: 2.4cqw; top: 2.4cqw"></i>
+            <i class="vt-screw" style="left: 2.4cqw; bottom: 2.4cqw"></i>
+            <i class="vt-screw" style="right: 2.4cqw; bottom: 2.4cqw"></i>
+
+            <div class="vt-top">
+              <span>&#9654; SIDE A</span><span>VHS HI-FI STEREO</span>
+            </div>
+
+            <div class="vt-window">
+              <div class="vcr-reels"><i></i><i></i></div>
+              <span class="vt-band"></span>
+            </div>
+
+            <div class="vt-label">
+              <small class="vt-l1">CINECLUBE VIDEO NEWS</small>
+              <strong id="selected-title">BLADE RUNNER</strong>
+              <div class="vt-l3">
+                <small id="selected-year">1982</small
+                ><span>SP &middot; NTSC &middot; HQ</span>
+              </div>
+            </div>
+
+            <div class="vt-foot">
+              <i></i><span>NAO REBOBINAR COM FORCA</span><i></i>
+            </div>
+            <span class="vt-tab"></span>
+          </div>
+        </div>
+
+        <div class="vcr-info">
+          <span class="chip"> Fita selecionada no VCR </span>
+
+          <span class="dir">
+            DIR:
+
+            <b id="selected-director"> RIDLEY SCOTT </b>
+          </span>
+
+          <p id="selected-desc">
+            Em uma Los Angeles distópica e futurista, um caçador de androides
+            persegue replicantes renegados que retornam à Terra em busca de seu
+            criador.
+          </p>
+
+          <div class="actions">
+            <button id="btn-play" class="btn red">
+              Inserir fita &amp; assistir
+            </button>
+
+            <button id="btn-rent" class="btn gold">Alugar esta fita</button>
+
+            <button id="btn-mylist" class="btn pink">♥ Minha lista</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- =========================================
+         CATÁLOGO
+    ========================================== -->
+
+      <div class="shelf-head">
+        <h2>
+          Todas as fitas disponíveis na prateleira (
+          <span id="catalog-count"> 8 </span>
+          )
+        </h2>
+
+        <span class="online"> Sistema de locação online </span>
+      </div>
+
+      <input
+        id="search"
+        class="search"
+        type="search"
+        placeholder="Buscar na prateleira..."
+      />
+
+      <p id="catalog-message" class="msg" hidden>
+        Nenhuma fita encontrada nesta prateleira.
+      </p>
+
+      <div class="grid" id="catalog">
+        <!-- =====================================
+             1. BLADE RUNNER
+        ====================================== -->
+
+        <article
+          class="slot"
+          data-id="1"
+          data-genre="cyberpunk"
+          data-banner="https://m.media-amazon.com/images/M/MV5BNzQzMzJhZTEtOWM4NS00MTdhLTg0YjgtMjM4MDRkZjUwZDBlXkEyXkFqcGdeQXVyNjU0OTQ0OTY@._V1_SX300.jpg"
+          tabindex="0"
+        >
+          <div class="vhs-hover-tape">
+            <div class="vhs-cassette">
+              <div class="spool-window">
+                <i class="spool-wheel"></i>
+
+                <i class="spool-wheel"></i>
+              </div>
+
+              <div class="vhs-sticker">
+                BLADE RUNNER
+
+                <small> 1982 </small>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="tape"
+            style="
+              --banner: url(&quot;https://m.media-amazon.com/images/M/MV5BNzQzMzJhZTEtOWM4NS00MTdhLTg0YjgtMjM4MDRkZjUwZDBlXkEyXkFqcGdeQXVyNjU0OTQ0OTY@._V1_SX300.jpg&quot;);
+            "
+          >
+            <div class="poster">
+              <img
+                src="https://m.media-amazon.com/images/M/MV5BNzQzMzJhZTEtOWM4NS00MTdhLTg0YjgtMjM4MDRkZjUwZDBlXkEyXkFqcGdeQXVyNjU0OTQ0OTY@._V1_SX300.jpg"
+                alt="Pôster de Blade Runner"
+              />
+
+              <span class="vhs-badge"> VHS </span>
+
+              <div class="info">
+                <span class="meta"> Cyberpunk · 1982 </span>
+
+                <h3>Blade Runner</h3>
+
+                <p>Passe o mouse · retirar fita</p>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- =====================================
+             2. PULP FICTION
+        ====================================== -->
+
+        <article
+          class="slot"
+          data-id="2"
+          data-genre="acao"
+          data-banner="https://m.media-amazon.com/images/M/MV5BNGNhMDIzZTUtNTBlZi00MTRlLWFjM2ItYzViMjE3YzI5MjljXkEyXkFqcGdeQXVyNzkwMjQ5NzM@._V1_SX300.jpg"
+          tabindex="0"
+        >
+          <div class="vhs-hover-tape">
+            <div class="vhs-cassette">
+              <div class="spool-window">
+                <i class="spool-wheel"></i>
+
+                <i class="spool-wheel"></i>
+              </div>
+
+              <div class="vhs-sticker">
+                PULP FICTION
+
+                <small> 1994 </small>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="tape"
+            style="
+              --banner: url(&quot;https://m.media-amazon.com/images/M/MV5BNGNhMDIzZTUtNTBlZi00MTRlLWFjM2ItYzViMjE3YzI5MjljXkEyXkFqcGdeQXVyNzkwMjQ5NzM@._V1_SX300.jpg&quot;);
+            "
+          >
+            <div class="poster">
+              <img
+                src="https://m.media-amazon.com/images/M/MV5BNGNhMDIzZTUtNTBlZi00MTRlLWFjM2ItYzViMjE3YzI5MjljXkEyXkFqcGdeQXVyNzkwMjQ5NzM@._V1_SX300.jpg"
+                alt="Pôster de Pulp Fiction"
+              />
+
+              <span class="vhs-badge"> VHS </span>
+
+              <div class="info">
+                <span class="meta"> Ação clássica · 1994 </span>
+
+                <h3>Pulp Fiction</h3>
+
+                <p>Passe o mouse · retirar fita</p>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- =====================================
+             3. MATRIX
+        ====================================== -->
+
+        <article
+          class="slot"
+          data-id="3"
+          data-genre="cyberpunk"
+          data-banner="https://m.media-amazon.com/images/M/MV5BNzQzOTk3OTAtNDQ0Zi00ZTVkLWI0MTEtMDllZjNkYzNjNTc4L2ltYWdlXkEyXkFqcGdeQXVyNjU0OTQ5OTY@._V1_SX300.jpg"
+          tabindex="0"
+        >
+          <div class="vhs-hover-tape">
+            <div class="vhs-cassette">
+              <div class="spool-window">
+                <i class="spool-wheel"></i>
+
+                <i class="spool-wheel"></i>
+              </div>
+
+              <div class="vhs-sticker">
+                MATRIX
+
+                <small> 1999 </small>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="tape"
+            style="
+              --banner: url(&quot;https://upload.wikimedia.org/wikipedia/pt/c/c1/The_Matrix_Poster.jpg?utm_source=pt.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled&quot;);
+            "
+          >
+            <div class="poster">
+              <img
+                src="https://upload.wikimedia.org/wikipedia/pt/c/c1/The_Matrix_Poster.jpg?utm_source=pt.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled"
+                alt="Pôster de Matrix"
+              />
+
+              <span class="vhs-badge"> VHS </span>
+
+              <div class="info">
+                <span class="meta"> Cyberpunk · 1999 </span>
+
+                <h3>Matrix</h3>
+
+                <p>Passe o mouse · retirar fita</p>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- =====================================
+             4. OS BONS COMPANHEIROS
+        ====================================== -->
+
+        <article
+          class="slot"
+          data-id="4"
+          data-genre="thriller"
+          data-banner="https://m.media-amazon.com/images/M/MV5BY2NkZjEzMDgtN2RjYy00YzM1LWI4ZmQtMjIwYjFjNmI3ZGEwXkEyXkFqcGdeQXVyNzkwMjQ5NzM@._V1_SX300.jpg"
+          tabindex="0"
+        >
+          <div class="vhs-hover-tape">
+            <div class="vhs-cassette">
+              <div class="spool-window">
+                <i class="spool-wheel"></i>
+
+                <i class="spool-wheel"></i>
+              </div>
+
+              <div class="vhs-sticker">
+                OS BONS COMPANHEIROS
+
+                <small> 1990 </small>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="tape"
+            style="
+              --banner: url(&quot;https://m.media-amazon.com/images/M/MV5BY2NkZjEzMDgtN2RjYy00YzM1LWI4ZmQtMjIwYjFjNmI3ZGEwXkEyXkFqcGdeQXVyNzkwMjQ5NzM@._V1_SX300.jpg&quot;);
+            "
+          >
+            <div class="poster">
+              <img
+                src="https://m.media-amazon.com/images/M/MV5BY2NkZjEzMDgtN2RjYy00YzM1LWI4ZmQtMjIwYjFjNmI3ZGEwXkEyXkFqcGdeQXVyNzkwMjQ5NzM@._V1_SX300.jpg"
+                alt="Pôster de Os Bons Companheiros"
+              />
+
+              <span class="vhs-badge"> VHS </span>
+
+              <div class="info">
+                <span class="meta"> Thriller · 1990 </span>
+
+                <h3>Os Bons Companheiros</h3>
+
+                <p>Passe o mouse · retirar fita</p>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- =====================================
+             5. O ILUMINADO
+        ====================================== -->
+
+        <article
+          class="slot"
+          data-id="5"
+          data-genre="terror"
+          data-banner="https://m.media-amazon.com/images/M/MV5BZWFlYmY2MGEtZjVkYS00YzU4LTg0YjQtYzY1ZGE3NTA5NGQxXkEyXkFqcGdeQXVyMTQxNzMzNDI@._V1_SX300.jpg"
+          tabindex="0"
+        >
+          <div class="vhs-hover-tape">
+            <div class="vhs-cassette">
+              <div class="spool-window">
+                <i class="spool-wheel"></i>
+
+                <i class="spool-wheel"></i>
+              </div>
+
+              <div class="vhs-sticker">
+                O ILUMINADO
+
+                <small> 1980 </small>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="tape"
+            style="
+              --banner: url(&quot;https://m.media-amazon.com/images/M/MV5BZWFlYmY2MGEtZjVkYS00YzU4LTg0YjQtYzY1ZGE3NTA5NGQxXkEyXkFqcGdeQXVyMTQxNzMzNDI@._V1_SX300.jpg&quot;);
+            "
+          >
+            <div class="poster">
+              <img
+                src="https://m.media-amazon.com/images/M/MV5BZWFlYmY2MGEtZjVkYS00YzU4LTg0YjQtYzY1ZGE3NTA5NGQxXkEyXkFqcGdeQXVyMTQxNzMzNDI@._V1_SX300.jpg"
+                alt="Pôster de O Iluminado"
+              />
+
+              <span class="vhs-badge"> VHS </span>
+
+              <div class="info">
+                <span class="meta"> Terror · 1980 </span>
+
+                <h3>O Iluminado</h3>
+
+                <p>Passe o mouse · retirar fita</p>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- =====================================
+             6. ALIEN
+        ====================================== -->
+
+        <article
+          class="slot"
+          data-id="6"
+          data-genre="scifi"
+          data-banner="https://br.web.img3.acsta.net/c_310_420/pictures/15/05/14/21/14/504650.jpg"
+          tabindex="0"
+        >
+          <div class="vhs-hover-tape">
+            <div class="vhs-cassette">
+              <div class="spool-window">
+                <i class="spool-wheel"></i>
+
+                <i class="spool-wheel"></i>
+              </div>
+
+              <div class="vhs-sticker">
+                ALIEN, O 8º PASSAGEIRO
+
+                <small> 1979 </small>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="tape"
+            style="
+              --banner: url(&quot;https://br.web.img3.acsta.net/c_310_420/pictures/15/05/14/21/14/504650.jpg&quot;);
+            "
+          >
+            <div class="poster">
+              <img
+                src="https://br.web.img3.acsta.net/c_310_420/pictures/15/05/14/21/14/504650.jpg"
+                alt="Pôster de Alien, o 8º Passageiro"
+              />
+
+              <span class="vhs-badge"> VHS </span>
+
+              <div class="info">
+                <span class="meta"> Sci-Fi · 1979 </span>
+
+                <h3>Alien, o 8º Passageiro</h3>
+
+                <p>Passe o mouse · retirar fita</p>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- =====================================
+             7. O EXTERMINADOR DO FUTURO
+        ====================================== -->
+
+        <article
+          class="slot"
+          data-id="7"
+          data-genre="scifi"
+          data-banner="https://m.media-amazon.com/images/M/MV5BYTViNzMxZjEtZGEwNy00MDNiLWIzNGQtZDY2MjQ1OWViZjFmXkEyXkFqcGdeQXVyNzkwMjQ5NzM@._V1_SX300.jpg"
+          tabindex="0"
+        >
+          <div class="vhs-hover-tape">
+            <div class="vhs-cassette">
+              <div class="spool-window">
+                <i class="spool-wheel"></i>
+
+                <i class="spool-wheel"></i>
+              </div>
+
+              <div class="vhs-sticker">
+                O EXTERMINADOR DO FUTURO
+
+                <small> 1984 </small>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="tape"
+            style="
+              --banner: url(&quot;https://m.media-amazon.com/images/M/MV5BYTViNzMxZjEtZGEwNy00MDNiLWIzNGQtZDY2MjQ1OWViZjFmXkEyXkFqcGdeQXVyNzkwMjQ5NzM@._V1_SX300.jpg&quot;);
+            "
+          >
+            <div class="poster">
+              <img
+                src="https://m.media-amazon.com/images/M/MV5BYTViNzMxZjEtZGEwNy00MDNiLWIzNGQtZDY2MjQ1OWViZjFmXkEyXkFqcGdeQXVyNzkwMjQ5NzM@._V1_SX300.jpg"
+                alt="Pôster de O Exterminador do Futuro"
+              />
+
+              <span class="vhs-badge"> VHS </span>
+
+              <div class="info">
+                <span class="meta"> Sci-Fi · 1984 </span>
+
+                <h3>O Exterminador do Futuro</h3>
+
+                <p>Passe o mouse · retirar fita</p>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- =====================================
+             8. DONNIE DARKO
+        ====================================== -->
+
+        <article
+          class="slot"
+          data-id="8"
+          data-genre="drama"
+          data-banner="https://image.tmdb.org/t/p/original/6FKym4sm5LcqUC80HNpn2ejVoro.jpg"
+          tabindex="0"
+        >
+          <div class="vhs-hover-tape">
+            <div class="vhs-cassette">
+              <div class="spool-window">
+                <i class="spool-wheel"></i>
+
+                <i class="spool-wheel"></i>
+              </div>
+
+              <div class="vhs-sticker">
+                DONNIE DARKO
+
+                <small> 2001 </small>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="tape"
+            style="
+              --banner: url(&quot;https://image.tmdb.org/t/p/original/6FKym4sm5LcqUC80HNpn2ejVoro.jpg&quot;);
+            "
+          >
+            <div class="poster">
+              <img
+                src="https://image.tmdb.org/t/p/original/6FKym4sm5LcqUC80HNpn2ejVoro.jpg"
+                alt="Pôster de Donnie Darko"
+              />
+
+              <span class="vhs-badge"> VHS </span>
+
+              <div class="info">
+                <span class="meta"> Drama · 2001 </span>
+
+                <h3>Donnie Darko</h3>
+
+                <p>Passe o mouse · retirar fita</p>
+              </div>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <!-- =========================================
+         RODAPÉ VCR
+    ========================================== -->
+
+      <footer class="deck">
+        <div class="deck-screen">
+          <span id="vcr-display"> VCR DECK READY </span>
+
+          <small id="vcr-counter"> SP / STEREO </small>
+        </div>
+
+        <div class="deck-btns">
+          <button id="btn-rewind" class="btn ghost">Rebobinar tudo</button>
+
+          <button id="btn-eject" class="btn ghost">Eject fita</button>
+
+          <button id="btn-search" class="btn ghost">
+            Buscar na prateleira
+          </button>
+        </div>
+      </footer>
+    </main>
+
+    <div id="toast" class="toast" hidden></div>
+
+    <script src="script.js"></script>
+  </body>
+</html>

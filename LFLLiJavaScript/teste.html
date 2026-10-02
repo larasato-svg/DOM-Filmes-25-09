@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CineList - Catálogo de Filmes</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: #121212;
+      color: #ffffff;
+      padding: 30px 20px;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    h1 {
+      color: #e50914;
+      font-size: 2.5rem;
+      letter-spacing: 2px;
+      margin-bottom: 8px;
+    }
+
+    p.subtitle {
+      color: #aaaaaa;
+      font-size: 1rem;
+    }
+
+    section {
+      margin-bottom: 40px;
+    }
+
+    h2.section-title {
+      font-size: 1.4rem;
+      border-left: 4px solid #e50914;
+      padding-left: 10px;
+      margin-bottom: 20px;
+      color: #ffffff;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background-color: #1e1e1e;
+      border: 1px solid #333333;
+      border-radius: 8px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      border-color: #444444;
+    }
+
+    .card-info {
+      margin-bottom: 15px;
+    }
+
+    .card-title {
+      font-size: 1.2rem;
+      font-weight: bold;
+      margin-bottom: 10px;
+      color: #ffffff;
+    }
+
+    .card-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .badge-genero {
+      background-color: rgba(229, 9, 20, 0.2);
+      color: #e50914;
+      border: 1px solid rgba(229, 9, 20, 0.4);
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .ano {
+      color: #888888;
+      font-size: 0.85rem;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 10px;
+      border: none;
+      border-radius: 4px;
+      font-size: 0.9rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+    }
+
+    .btn-adicionar {
+      background-color: #e50914;
+      color: #ffffff;
+    }
+
+    .btn-adicionar:hover {
+      background-color: #f6121d;
+    }
+
+    .btn-remover {
+      background-color: transparent;
+      color: #e50914;
+      border: 1px solid #e50914;
+    }
+
+    .btn-remover:hover {
+      background-color: #e50914;
+      color: #ffffff;
+    }
+
+    .empty-message {
+      color: #666666;
+      font-style: italic;
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 30px;
+      background: #181818;
+      border-radius: 8px;
+      border: 1px dashed #333;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <h1>CINELIST</h1>
+      <p class="subtitle">Selecione e monte seu catálogo personalizado</p>
+    </header>
+
+    <!-- Seção de filmes disponíveis para adicionar -->
+    <section>
+      <h2 class="section-title">Filmes Disponíveis</h2>
+      
+      <div class="grid" id="opcoesGrid">
+
+        <!-- Card 1 -->
+        <article class="card" data-id="1">
+          <div class="card-info">
+            <h3 class="card-title">Interstellar</h3>
+            <div class="card-meta">
+              <span class="badge-genero">Ficção Científica</span>
+              <span class="ano">2014</span>
+            </div>
+          </div>
+          <!-- O botão dispara a adição no JS -->
+          <button class="btn btn-adicionar">+ Adicionar à Minha Lista</button>
+        </article>
+
+        <!-- Card 2 -->
+        <article class="card" data-id="2">
+          <div class="card-info">
+            <h3 class="card-title">O Poderoso Chefão</h3>
+            <div class="card-meta">
+              <span class="badge-genero">Drama / Crime</span>
+              <span class="ano">1972</span>
+            </div>
+          </div>
+          <button class="btn btn-adicionar">+ Adicionar à Minha Lista</button>
+        </article>
+
+        <!-- Card 3 -->
+        <article class="card" data-id="3">
+          <div class="card-info">
+            <h3 class="card-title">Batman: O Cavaleiro das Trevas</h3>
+            <div class="card-meta">
+              <span class="badge-genero">Ação</span>
+              <span class="ano">2008</span>
+            </div>
+          </div>
+          <button class="btn btn-adicionar">+ Adicionar à Minha Lista</button>
+        </article>
+
+        <!-- Card 4 -->
+        <article class="card" data-id="4">
+          <div class="card-info">
+            <h3 class="card-title">Divertida Mente</h3>
+            <div class="card-meta">
+              <span class="badge-genero">Animação</span>
+              <span class="ano">2015</span>
+            </div>
+          </div>
+          <button class="btn btn-adicionar">+ Adicionar à Minha Lista</button>
+        </article>
+
+        <!-- Card 5 -->
+        <article class="card" data-id="5">
+          <div class="card-info">
+            <h3 class="card-title">O Iluminado</h3>
+            <div class="card-meta">
+              <span class="badge-genero">Terror</span>
+              <span class="ano">1980</span>
+            </div>
+          </div>
+          <button class="btn btn-adicionar">+ Adicionar à Minha Lista</button>
+        </article>
+
+        <!-- Card 6 -->
+        <article class="card" data-id="6">
+          <div class="card-info">
+            <h3 class="card-title">Vingadores: Ultimato</h3>
+            <div class="card-meta">
+              <span class="badge-genero">Aventura</span>
+              <span class="ano">2019</span>
+            </div>
+          </div>
+          <button class="btn btn-adicionar">+ Adicionar à Minha Lista</button>
+        </article>
+
+      </div>
+    </section>
+
+    <!-- Seção onde os filmes selecionados vão aparecer -->
+    <section>
+      <h2 class="section-title">Minha Lista</h2>
+      
+      <!-- Container que o JS vai usar para inserir os novos cards com o botão "Remover" -->
+      <div class="grid" id="minhaListaGrid">
+        <p class="empty-message" id="mensagemVazia">Nenhum filme adicionado ainda. Clique em "+ Adicionar" acima.</p>
+      </div>
+    </section>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
