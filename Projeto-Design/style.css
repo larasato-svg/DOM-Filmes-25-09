@@ -1,0 +1,1295 @@
+:root {
+  --bg: #0a0c12;
+  --panel: #0f121b;
+  --line: #232838;
+
+  --red: #ee3340;
+  --gold: #f2b632;
+  --green: #3ddc84;
+  --pink: #ff5d8f;
+
+  --text: #e8e9ee;
+  --dim: #8a90a3;
+
+  --ease: cubic-bezier(0.22, 0.8, 0.3, 1);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+
+  font-family: "Space Mono", ui-monospace, Menlo, Consolas, monospace;
+
+  font-size: 12px;
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+/* CRT — scanlines e vinheta (ajustadas para ficarem mais discretas) */
+
+body::before {
+  content: "";
+
+  position: fixed;
+  inset: 0;
+
+  pointer-events: none;
+
+  z-index: 50;
+
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(255, 255, 255, 0.016) 0 1px,
+    transparent 1px 4px
+  );
+}
+
+body::after {
+  content: "";
+
+  position: fixed;
+  inset: 0;
+
+  pointer-events: none;
+
+  z-index: 49;
+
+  background: radial-gradient(
+    ellipse at center,
+    transparent 65%,
+    rgba(0, 0, 0, 0.4)
+  );
+}
+
+/* =========================================
+   TOPO
+========================================= */
+
+.top {
+  text-align: center;
+
+  padding: 28px 16px 8px;
+}
+
+.logo {
+  font-size: 28px;
+
+  font-weight: 400;
+
+  letter-spacing: 0.14em;
+
+  display: inline-flex;
+
+  align-items: center;
+
+  gap: 10px;
+
+  position: relative;
+}
+
+.logo i {
+  width: 10px;
+  height: 10px;
+
+  border-radius: 50%;
+
+  background: var(--red);
+}
+
+.logo-text {
+  position: relative;
+}
+
+.logo-text::after {
+  content: attr(data-text);
+
+  position: absolute;
+
+  left: 0;
+  top: 0;
+
+  color: rgba(238, 51, 64, 0.22);
+
+  clip-path: inset(0 0 70% 0);
+
+  transform: translate(2px, 1px);
+
+  animation: signal 5s infinite;
+}
+
+@keyframes signal {
+  0%,
+  86%,
+  100% {
+    opacity: 0;
+    transform: translate(0, 0);
+  }
+
+  88% {
+    opacity: 0.8;
+    transform: translate(-2px, 0);
+  }
+
+  89% {
+    opacity: 0.4;
+    transform: translate(2px, 1px);
+  }
+
+  90% {
+    opacity: 0;
+  }
+}
+
+.sub {
+  color: var(--gold);
+
+  letter-spacing: 0.14em;
+
+  font-size: 11px;
+
+  text-transform: uppercase;
+
+  margin: 8px 0 22px;
+}
+
+.nav {
+  display: flex;
+
+  justify-content: center;
+
+  gap: 34px;
+
+  flex-wrap: wrap;
+}
+
+.nav button {
+  background: none;
+
+  border: none;
+
+  font-size: 11px;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.08em;
+
+  color: var(--dim);
+
+  padding-bottom: 4px;
+
+  border-bottom: 2px solid transparent;
+}
+
+.nav button.on,
+.nav button:hover {
+  color: var(--text);
+
+  border-color: var(--gold);
+}
+
+.mylist {
+  display: inline-block;
+
+  margin: 22px 0 4px;
+
+  color: var(--pink);
+
+  text-transform: uppercase;
+
+  font-size: 11px;
+
+  letter-spacing: 0.08em;
+
+  background: none;
+
+  border: none;
+}
+
+/* =========================================
+   CONTAINER
+========================================= */
+
+.wrap {
+  max-width: 1180px;
+
+  margin: 0 auto;
+
+  padding: 16px 40px 48px;
+}
+
+/* =========================================
+   VCR PRINCIPAL
+========================================= */
+
+.vcr {
+  position: relative;
+
+  display: grid;
+
+  grid-template-columns:
+    minmax(220px, 300px)
+    1fr;
+
+  gap: 40px;
+
+  align-items: center;
+
+  background: var(--panel);
+
+  border: 1px solid var(--line);
+
+  border-radius: 10px;
+
+  padding: 28px 32px;
+
+  margin-bottom: 34px;
+
+  overflow: hidden;
+}
+
+.selected-banner {
+  position: absolute;
+
+  inset: 0;
+
+  background-position: center;
+
+  background-size: cover;
+
+  opacity: 0.09;
+
+  filter: grayscale(1);
+
+  pointer-events: none;
+}
+
+.selected-banner::after {
+  content: "";
+
+  position: absolute;
+
+  inset: 0;
+
+  background: linear-gradient(
+    90deg,
+    var(--panel) 0%,
+    rgba(15, 18, 27, 0.92) 45%,
+    var(--panel) 100%
+  );
+}
+
+.vcr > *:not(.selected-banner) {
+  position: relative;
+
+  z-index: 2;
+}
+
+.vcr-tape {
+  background: #0c0e15;
+
+  border-top: 3px solid var(--red);
+
+  border-radius: 4px;
+
+  padding: 14px;
+
+  text-align: center;
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 8px;
+
+  align-items: center;
+
+  min-height: 150px;
+}
+
+.vcr-tape small {
+  color: var(--dim);
+
+  font-size: 8px;
+
+  letter-spacing: 0.1em;
+}
+
+.vcr-tape strong {
+  font-weight: 400;
+
+  letter-spacing: 0.06em;
+
+  color: var(--dim);
+}
+
+.vcr-reels {
+  display: flex;
+
+  gap: 70px;
+}
+
+.vcr-reels i {
+  width: 18px;
+  height: 18px;
+
+  border-radius: 50%;
+
+  background: radial-gradient(#0a0a0a 0 30%, #cfd2da 31% 45%, #2a2d38 46%);
+}
+
+.chip {
+  display: inline-block;
+
+  border: 1px solid var(--gold);
+
+  color: var(--gold);
+
+  background: rgba(242, 182, 50, 0.08);
+
+  padding: 2px 8px;
+
+  font-size: 10px;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.06em;
+}
+
+.dir {
+  margin-left: 12px;
+
+  color: var(--dim);
+
+  font-size: 11px;
+}
+
+.vcr-info p {
+  margin: 16px 0;
+
+  padding-bottom: 16px;
+
+  border-bottom: 1px solid var(--line);
+
+  max-width: 62ch;
+
+  font-size: 11px;
+}
+
+.actions {
+  display: flex;
+
+  gap: 12px;
+
+  flex-wrap: wrap;
+}
+
+/* =========================================
+   BOTÕES
+========================================= */
+
+.btn {
+  border: 1px solid var(--line);
+
+  background: transparent;
+
+  padding: 10px 16px;
+
+  border-radius: 3px;
+
+  font-size: 10px;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.06em;
+
+  transition:
+    background 0.2s,
+    border-color 0.2s,
+    transform 0.2s;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+.btn.red {
+  background: var(--red);
+
+  border-color: var(--red);
+
+  font-weight: 700;
+}
+
+.btn.red:hover {
+  background: #ff4a56;
+}
+
+.btn.gold {
+  border-color: var(--gold);
+
+  color: var(--gold);
+}
+
+.btn.gold:hover {
+  background: rgba(242, 182, 50, 0.1);
+}
+
+.btn.pink {
+  border-color: var(--pink);
+
+  color: var(--pink);
+}
+
+.btn.pink:hover {
+  background: rgba(255, 93, 143, 0.1);
+}
+
+.btn.ghost:hover {
+  border-color: var(--dim);
+
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.btn:focus-visible,
+.slot:focus-visible,
+.search:focus-visible {
+  outline: 2px solid var(--gold);
+
+  outline-offset: 3px;
+}
+
+/* =========================================
+   CABEÇALHO DO CATÁLOGO
+========================================= */
+
+.shelf-head {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  gap: 12px;
+
+  flex-wrap: wrap;
+
+  padding-bottom: 14px;
+
+  border-bottom: 1px solid var(--line);
+}
+
+.shelf-head h2 {
+  font-size: 11px;
+
+  font-weight: 400;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.06em;
+}
+
+.online {
+  color: var(--green);
+
+  font-size: 10px;
+
+  text-transform: uppercase;
+}
+
+.online::before {
+  content: "● ";
+}
+
+/* =========================================
+   BUSCA
+========================================= */
+
+.search {
+  width: 100%;
+
+  max-width: 360px;
+
+  margin: 14px 0 0;
+
+  background: var(--panel);
+
+  border: 1px solid var(--line);
+
+  color: var(--text);
+
+  font: inherit;
+
+  padding: 8px 12px;
+
+  border-radius: 3px;
+}
+
+.search::placeholder {
+  color: var(--dim);
+}
+
+.msg {
+  margin-top: 14px;
+
+  color: var(--gold);
+}
+
+/* =========================================
+   GRID
+========================================= */
+
+.grid {
+  display: grid;
+
+  grid-template-columns: repeat(4, 1fr);
+
+  gap: 36px 34px;
+
+  padding: 34px 26px 26px 0;
+}
+
+/* =========================================
+   CARD
+========================================= */
+
+.slot {
+  position: relative;
+
+  aspect-ratio: 2/3.1;
+
+  cursor: pointer;
+
+  isolation: isolate;
+
+  outline-offset: 6px;
+}
+
+/* =========================================
+   VHS ATRÁS
+========================================= */
+
+.vhs-hover-tape {
+  position: absolute;
+
+  z-index: 0;
+
+  top: 5%;
+  left: 10%;
+
+  width: 80%;
+  height: 88%;
+
+  opacity: 0;
+
+  transform: translate(0, 0) rotate(0deg);
+
+  transform-origin: 30% 90%;
+
+  transition:
+    transform 0.5s var(--ease),
+    opacity 0.25s ease;
+
+  filter: drop-shadow(0 12px 14px rgba(0, 0, 0, 0.6));
+}
+
+.vhs-cassette {
+  position: relative;
+
+  width: 100%;
+  height: 100%;
+
+  border-radius: 7px;
+
+  background:
+    repeating-linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.05) 0 1px,
+      transparent 1px 4px
+    ),
+    linear-gradient(150deg, #33363e, #15171c 70%);
+
+  border: 1px solid #454851;
+
+  box-shadow:
+    inset 0 0 0 3px #1b1d23,
+    inset 0 -8px 12px rgba(0, 0, 0, 0.5),
+    6px 0 0 -1px #0d0e11;
+}
+
+/* Parafusos */
+
+.vhs-cassette::before,
+.vhs-cassette::after {
+  content: "";
+
+  position: absolute;
+
+  bottom: 3%;
+
+  width: 7px;
+  height: 7px;
+
+  border-radius: 50%;
+
+  background: radial-gradient(circle at 35% 35%, #9a9da5, #4a4d55);
+
+  box-shadow: inset 0 0 0 1px #222;
+}
+
+.vhs-cassette::before {
+  left: 5%;
+}
+
+.vhs-cassette::after {
+  right: 5%;
+}
+
+/* Janela */
+
+.spool-window {
+  position: absolute;
+
+  top: 5%;
+
+  left: 9%;
+  right: 9%;
+
+  height: 32%;
+
+  border-radius: 10px;
+
+  background: linear-gradient(#0c0d11, #1a1c22);
+
+  border: 2px solid #4b4e57;
+
+  display: flex;
+
+  justify-content: space-around;
+
+  align-items: center;
+
+  padding: 0 6%;
+
+  box-shadow: inset 0 3px 8px #000;
+}
+
+/* Bobinas */
+
+.spool-wheel {
+  width: 34%;
+
+  aspect-ratio: 1;
+
+  border-radius: 50%;
+
+  border: 3px solid #7a7d86;
+
+  background:
+    radial-gradient(circle, #0a0a0a 0 20%, transparent 21%),
+    conic-gradient(
+      #e2ddd0 0 12%,
+      #232323 0 25%,
+      #e2ddd0 0 37%,
+      #232323 0 50%,
+      #e2ddd0 0 62%,
+      #232323 0 75%,
+      #e2ddd0 0 87%,
+      #232323 0
+    );
+
+  box-shadow: 0 0 0 5px #3a271b;
+}
+
+/* Fita magnética */
+
+.spool-window::before {
+  content: "";
+
+  position: absolute;
+
+  left: 12%;
+  right: 12%;
+
+  bottom: 9%;
+
+  height: 3px;
+
+  background: #4a3524;
+
+  border-radius: 2px;
+}
+
+/* Etiqueta VHS */
+
+.vhs-sticker {
+  position: absolute;
+
+  left: 9%;
+  right: 9%;
+
+  top: 44%;
+  bottom: 12%;
+
+  background: linear-gradient(#e6e5dd, #c9c8bf);
+
+  border-top: 5px solid var(--red);
+
+  border-radius: 2px;
+
+  color: #1b1b1b;
+
+  padding: 8px 6px;
+
+  text-align: center;
+
+  font-size: 9px;
+
+  font-weight: 700;
+
+  letter-spacing: 0.04em;
+
+  line-height: 1.25;
+
+  display: flex;
+
+  flex-direction: column;
+
+  justify-content: center;
+
+  gap: 4px;
+
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+}
+
+.vhs-sticker small {
+  font-weight: 400;
+
+  font-size: 8px;
+
+  color: #555;
+}
+
+/* =========================================
+   PÔSTER
+========================================= */
+
+.tape {
+  position: absolute;
+
+  inset: 0;
+
+  z-index: 2;
+
+  transition: transform 0.5s var(--ease);
+
+  transform-origin: 70% 100%;
+}
+
+.poster {
+  position: relative;
+
+  width: 100%;
+  height: 100%;
+
+  border-radius: 4px;
+
+  overflow: hidden;
+
+  background: #111;
+
+  border: 1px solid var(--line);
+
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
+
+  transition:
+    box-shadow 0.5s var(--ease),
+    border-color 0.3s;
+}
+
+.poster img {
+  position: absolute;
+
+  inset: 0;
+
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+
+  display: block;
+}
+
+.poster::after {
+  content: "";
+
+  position: absolute;
+
+  inset: 0;
+
+  background: linear-gradient(
+    to top,
+    rgba(5, 6, 10, 0.95) 0,
+    rgba(5, 6, 10, 0.55) 32%,
+    transparent 58%
+  );
+}
+
+/* Banner escondido no card */
+
+.poster::before {
+  content: "";
+
+  position: absolute;
+
+  inset: 0;
+
+  background-image: var(--banner);
+
+  background-size: cover;
+
+  background-position: center;
+
+  opacity: 0;
+
+  transition: opacity 0.4s;
+}
+
+/* Badge */
+
+.vhs-badge {
+  position: absolute;
+
+  top: 8px;
+  right: 8px;
+
+  z-index: 3;
+
+  font-size: 8px;
+
+  padding: 1px 6px;
+
+  background: rgba(0, 0, 0, 0.75);
+
+  border: 1px solid #555;
+
+  letter-spacing: 0.06em;
+}
+
+/* Informações */
+
+.info {
+  position: absolute;
+
+  left: 10px;
+  right: 10px;
+  bottom: 10px;
+
+  z-index: 3;
+}
+
+.meta {
+  display: block;
+
+  color: var(--gold);
+
+  font-size: 8px;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.05em;
+}
+
+.info h3 {
+  font-size: 13px;
+
+  font-weight: 700;
+
+  text-transform: uppercase;
+
+  line-height: 1.2;
+
+  margin: 4px 0;
+}
+
+.info p {
+  font-size: 7px;
+
+  color: var(--dim);
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.06em;
+}
+
+/* =========================================
+   HOVER
+========================================= */
+
+.slot:hover .vhs-hover-tape,
+.slot:focus-visible .vhs-hover-tape {
+  opacity: 1;
+
+  transform: translate(34%, -11%) rotate(13deg);
+}
+
+.slot:hover .tape,
+.slot:focus-visible .tape {
+  transform: translate(-4%, 1.5%) rotate(-3deg);
+}
+
+.slot:hover .poster,
+.slot:focus-visible .poster {
+  border-color: #3a4055;
+
+  box-shadow: -10px 14px 24px rgba(0, 0, 0, 0.7);
+}
+
+/* =========================================
+   VCR RODAPÉ
+========================================= */
+
+.deck {
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  gap: 16px;
+
+  margin-top: 34px;
+
+  padding-top: 26px;
+
+  border-top: 1px solid var(--line);
+}
+
+.deck-screen {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  gap: 40px;
+
+  min-width: min(390px, 100%);
+
+  background: #04160c;
+
+  border: 1px solid var(--line);
+
+  border-radius: 4px;
+
+  padding: 14px 20px;
+
+  color: var(--green);
+
+  font-weight: 700;
+}
+
+.deck-screen small {
+  color: var(--dim);
+
+  font-weight: 400;
+
+  font-size: 9px;
+}
+
+.deck-btns {
+  display: flex;
+
+  gap: 12px;
+
+  flex-wrap: wrap;
+
+  justify-content: center;
+}
+
+/* =========================================
+   TOAST
+========================================= */
+
+.toast {
+  position: fixed;
+
+  left: 50%;
+
+  bottom: 24px;
+
+  transform: translateX(-50%);
+
+  z-index: 60;
+
+  background: var(--panel);
+
+  border: 1px solid var(--gold);
+
+  color: var(--gold);
+
+  padding: 10px 18px;
+
+  border-radius: 4px;
+}
+
+/* =========================================
+   RESPONSIVO
+========================================= */
+
+@media (max-width: 980px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .vcr {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .wrap {
+    padding: 12px 16px 40px;
+  }
+
+  .grid {
+    gap: 28px 20px;
+
+    padding-right: 18px;
+  }
+
+  .vcr {
+    padding: 20px;
+  }
+
+  .nav {
+    gap: 18px;
+  }
+}
+
+@media (hover: none) {
+  .slot:active .vhs-hover-tape {
+    opacity: 1;
+
+    transform: translate(34%, -11%) rotate(13deg);
+  }
+
+  .slot:active .tape {
+    transform: translate(-4%, 1.5%) rotate(-3deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vhs-hover-tape,
+  .tape,
+  .poster,
+  .logo-text::after {
+    transition: none;
+    animation: none;
+  }
+}
+
+/* =========================================
+   FILTRO VHS DE TELA (muito sutil)
+   Camada fixa: ruído + brilho + tracking + interferência
+========================================= */
+
+.vhs-screen-filter {
+  position: fixed;
+  inset: 0;
+
+  z-index: 48;
+
+  pointer-events: none;
+
+  overflow: hidden;
+
+  /* leve "lavado" de CRT + ruído mínimo (dois pontilhados de tamanhos diferentes) */
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.015), rgba(255, 255, 255, 0.015)),
+    radial-gradient(rgba(255, 255, 255, 0.05) 0.6px, transparent 0.9px),
+    radial-gradient(rgba(0, 0, 0, 0.08) 0.6px, transparent 0.9px);
+
+  background-size:
+    100% 100%,
+    3px 3px,
+    7px 7px;
+
+  animation:
+    vhs-noise 4s steps(4) infinite,
+    vhs-brightness 9s ease-in-out infinite;
+}
+
+/* linha de tracking: passa devagar, raramente (~3s a cada 31s) */
+.vhs-screen-filter::before {
+  content: "";
+
+  position: absolute;
+
+  left: 0;
+  right: 0;
+  top: -2%;
+
+  height: 10px;
+
+  opacity: 0;
+
+  background: linear-gradient(
+    transparent,
+    rgba(255, 255, 255, 0.04) 45%,
+    rgba(255, 255, 255, 0.07) 50%,
+    rgba(255, 255, 255, 0.04) 55%,
+    transparent
+  );
+
+  animation: vhs-tracking 31s linear infinite;
+}
+
+/* interferência horizontal: uma linha fina, por ~0,3s a cada 19s */
+.vhs-screen-filter::after {
+  content: "";
+
+  position: absolute;
+
+  left: 0;
+  right: 0;
+  top: 41%;
+
+  height: 1px;
+
+  opacity: 0;
+
+  background: rgba(255, 255, 255, 0.07);
+
+  box-shadow:
+    0 1px 0 rgba(255, 60, 60, 0.05),
+    0 -1px 0 rgba(60, 200, 255, 0.05);
+
+  animation: vhs-interference 19s steps(1) infinite;
+}
+
+/* micro deslocamento RGB (menos de 1px), só no mesmo instante da interferência */
+body {
+  animation: vhs-rgb 19s steps(1) infinite;
+}
+
+@keyframes vhs-noise {
+  0% {
+    background-position:
+      0 0,
+      0 0,
+      0 0;
+  }
+  25% {
+    background-position:
+      0 0,
+      1px 2px,
+      3px 1px;
+  }
+  50% {
+    background-position:
+      0 0,
+      2px 1px,
+      1px 4px;
+  }
+  75% {
+    background-position:
+      0 0,
+      1px 3px,
+      4px 2px;
+  }
+  100% {
+    background-position:
+      0 0,
+      0 0,
+      0 0;
+  }
+}
+
+@keyframes vhs-brightness {
+  0%,
+  100% {
+    opacity: 0.85;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes vhs-tracking {
+  0%,
+  86% {
+    top: -2%;
+    opacity: 0;
+  }
+  87% {
+    top: -2%;
+    opacity: 1;
+  }
+  97% {
+    top: 104%;
+    opacity: 1;
+  }
+  98%,
+  100% {
+    top: 104%;
+    opacity: 0;
+  }
+}
+
+@keyframes vhs-interference {
+  0%,
+  91.9% {
+    opacity: 0;
+    top: 41%;
+  }
+  92% {
+    opacity: 1;
+    top: 41%;
+  }
+  92.8% {
+    opacity: 1;
+    top: 43%;
+  }
+  93.6%,
+  100% {
+    opacity: 0;
+    top: 43%;
+  }
+}
+
+@keyframes vhs-rgb {
+  0%,
+  91.9%,
+  93.6%,
+  100% {
+    text-shadow: none;
+  }
+  92%,
+  93.5% {
+    text-shadow:
+      0.6px 0 rgba(255, 50, 50, 0.3),
+      -0.6px 0 rgba(50, 220, 255, 0.3);
+  }
+}
+
+/* celular: sem animação do ruído, para poupar bateria */
+@media (max-width: 560px) {
+  .vhs-screen-filter {
+    animation: vhs-brightness 9s ease-in-out infinite;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vhs-screen-filter,
+  .vhs-screen-filter::before,
+  .vhs-screen-filter::after,
+  body {
+    animation: none;
+  }
+}
